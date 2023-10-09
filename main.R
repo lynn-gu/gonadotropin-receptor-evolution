@@ -41,19 +41,28 @@ lhcgr.e.xy <- syn.nonsyn.analysis(lhcgr.e)
 fshr.e.xy <- syn.nonsyn.analysis(fshr.e)
 tshr.e.xy <- syn.nonsyn.analysis(tshr.e)
 
+lhcgr.p.path <- "Primates_LHCGR_orthologues.fa"
+# fshr.p.path <- "Primates_FSHR_refseq.fasta"
+# tshr.p.path <- "Primates_TSHR_refseq.fasta"
+lhcgr.p <- read.seqs(lhcgr.p.path)
+# fshr.p <- read.seqs(fshr.p.path)
+# tshr.p <- read.seqs(fshr.p.path)
+lhcgr.p.xy <- syn.nonsyn.analysis(lhcgr.p)
+# syn.nonsyn.analysis(fshr.p)
+# syn.nonsyn.analysis(tshr.p)
+
+# plotting eutherian data
 ggplot() +
-  geom_line(data = lhcgr.e.xy, mapping = aes(x = Codon, y = NonSynRatio, color = "LHCGR")) +
-  geom_line(data = fshr.e.xy, mapping = aes(x = Codon, y = NonSynRatio, color = "FSHR")) +
-  geom_line(data = tshr.e.xy, mapping = aes(x = Codon, y = NonSynRatio, color = "TSHR")) +
+  geom_segment(data = lhcgr.e.xy, mapping = aes(x = Codon, xend = Codon, y = 0, yend = NonSynRatio, color = "LHCGR")) +
+  geom_segment(data = fshr.e.xy, mapping = aes(x = Codon, xend = Codon, y = 0, yend = NonSynRatio, color = "FSHR")) +
+  geom_segment(data = tshr.e.xy, mapping = aes(x = Codon, xend = Codon, y = 0, yend = NonSynRatio, color = "TSHR")) +
   ylab("Nonsynonymous/Synonymous Substitution Ratio") +
   labs(color = "receptors")
 
-# lhcgr.p.path <- "Primates_LHCGR_refseq.fasta"
-# lhcgr.p <- read.seqs(lhcgr.p.path)
-# syn.nonsyn.analysis(lhcgr.p)
-# fshr.p.path <- "Primates_FSHR_refseq.fasta"
-# fshr.p <- read.seqs(fshr.p.path)
-# syn.nonsyn.analysis(fshr.p)
-# tshr.p.path <- "Primates_TSHR_refseq.fasta"
-# tshr.p <- read.seqs(fshr.p.path)
-# syn.nonsyn.analysis(tshr.p)
+# plotting primates data
+ggplot() +
+  geom_segment(data = lhcgr.p.xy, mapping = aes(x = Codon, xend = Codon, y = 0, yend = NonSynRatio, color = "LHCGR")) +
+  # geom_line(data = fshr.e.xy, mapping = aes(x = Codon, y = NonSynRatio, color = "FSHR")) +
+  # geom_line(data = tshr.e.xy, mapping = aes(x = Codon, y = NonSynRatio, color = "TSHR")) +
+  ylab("Nonsynonymous/Synonymous Substitution Ratio") +
+  labs(color = "receptors")
