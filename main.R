@@ -6,10 +6,10 @@ library(MSA2dist)
 library(dplyr)
 library(ggplot2)
 
-# read mRNA seqs and trim non-coding region
+# read mRNA seqs and trim non-coding region with clipkit
 read.seqs <- function(seq.path) {
   exec_wait(
-    "clipkit",
+    "/Users/lynn/anaconda3/bin/clipkit",
     args = seq.path,
     std_out = TRUE
   )
@@ -42,14 +42,14 @@ fshr.e.xy <- syn.nonsyn.analysis(fshr.e)
 tshr.e.xy <- syn.nonsyn.analysis(tshr.e)
 
 lhcgr.p.path <- "Primates_LHCGR_orthologues.fa"
-# fshr.p.path <- "Primates_FSHR_refseq.fasta"
-# tshr.p.path <- "Primates_TSHR_refseq.fasta"
+fshr.p.path <- "Primates_FSHR_orthologues.fa"
+tshr.p.path <- "Primates_TSHR_orthologues.fa"
 lhcgr.p <- read.seqs(lhcgr.p.path)
-# fshr.p <- read.seqs(fshr.p.path)
-# tshr.p <- read.seqs(fshr.p.path)
+fshr.p <- read.seqs(fshr.p.path)
+tshr.p <- read.seqs(fshr.p.path)
 lhcgr.p.xy <- syn.nonsyn.analysis(lhcgr.p)
-# syn.nonsyn.analysis(fshr.p)
-# syn.nonsyn.analysis(tshr.p)
+fshr.p.xy <- syn.nonsyn.analysis(fshr.p)
+tshr.p.xy <- syn.nonsyn.analysis(tshr.p)
 
 # plotting eutherian data
 ggplot() +
@@ -62,7 +62,7 @@ ggplot() +
 # plotting primates data
 ggplot() +
   geom_segment(data = lhcgr.p.xy, mapping = aes(x = Codon, xend = Codon, y = 0, yend = NonSynRatio, color = "LHCGR")) +
-  # geom_line(data = fshr.e.xy, mapping = aes(x = Codon, y = NonSynRatio, color = "FSHR")) +
-  # geom_line(data = tshr.e.xy, mapping = aes(x = Codon, y = NonSynRatio, color = "TSHR")) +
+  geom_segment(data = fshr.p.xy, mapping = aes(x = Codon, xend = Codon, y = 0, yend = NonSynRatio, color = "FSHR")) +
+  geom_segment(data = tshr.p.xy, mapping = aes(x = Codon, xend = Codon, y = 0, yend = NonSynRatio, color = "TSHR")) +
   ylab("Nonsynonymous/Synonymous Substitution Ratio") +
   labs(color = "receptors")
