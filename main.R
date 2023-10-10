@@ -46,7 +46,7 @@ fshr.p.path <- "Primates_FSHR_orthologues.fa"
 tshr.p.path <- "Primates_TSHR_orthologues.fa"
 lhcgr.p <- read.seqs(lhcgr.p.path)
 fshr.p <- read.seqs(fshr.p.path)
-tshr.p <- read.seqs(fshr.p.path)
+tshr.p <- read.seqs(tshr.p.path)
 lhcgr.p.xy <- syn.nonsyn.analysis(lhcgr.p)
 fshr.p.xy <- syn.nonsyn.analysis(fshr.p)
 tshr.p.xy <- syn.nonsyn.analysis(tshr.p)
