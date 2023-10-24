@@ -8,12 +8,12 @@ library(ggplot2)
 
 # read mRNA seqs and trim non-coding region with clipkit
 read.seqs <- function(seq.path) {
-  exec_wait(
-    "/Users/lynn/anaconda3/bin/clipkit",
-    args = seq.path,
-    std_out = TRUE
-  )
-  seq.path <- base::paste(seq.path, ".clipkit", sep = "")
+  # exec_wait(
+    # "~/anaconda3/bin/clipkit",
+    # args = seq.path,
+    # std_out = TRUE
+  # )
+  # seq.path <- base::paste(seq.path, ".clipkit", sep = "")
   seq <- readDNAStringSet(seq.path, format = "FASTA")
   return(seq)
 }
@@ -26,7 +26,11 @@ csvn.analysis <- function(seq){
 
 # calculating nonsynonymous v synonymous ratio
 syn.nonsyn.analysis <- function(seq){
-  seq.xy <- seq |> dnastring2codonmat() |> codonmat2xy()
+  # seq.xy <- seq |> dnastring2codonmat() |> codonmat2xy()
+  seq.xy <- seq |> 
+    # RemoveGaps(removeGaps = "all") |> AlignTranslation() |> 
+    dnastring2codonmat(shorten=T) 
+  seq.xy <- seq.xy[apply(seq.xy, MARGIN = 1, function(x) sum(x != "---") > 0.9*length(x)),] |> codonmat2xy()
   seq.xy.m <- mutate(seq.xy, NonSynRatio = NonSynMean/SynMean) |> filter(is.finite(NonSynRatio)) |> select(Codon, NonSynRatio)
   return(seq.xy.m)
 }
