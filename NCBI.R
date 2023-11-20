@@ -1,5 +1,4 @@
 # dependencies
-library(reticulate)
 library(Biostrings)
 library(DECIPHER)
 library(MSA2dist)
