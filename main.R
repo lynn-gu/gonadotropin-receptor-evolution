@@ -25,18 +25,13 @@ codon.position <- function(start.c, mat){
   return(start.p)
 }
 
-# calculating nonsynonymous v synonymous ratio
+# calculating and plotting nonsynonymous v synonymous ratio
 syn.nonsyn.analysis <- function(seq, domain.p, recep.name){
-  # seq.xy <- seq |> dnastring2codonmat() |> codonmat2xy()
-  seq.xy <- seq |> 
-    # RemoveGaps(removeGaps = "all") |> AlignTranslation() |> 
-    dnastring2codonmat(shorten=T) 
+  seq.xy <- seq |> dnastring2codonmat(shorten=T) 
   seq.xy <- seq.xy[apply(seq.xy, MARGIN = 1, function(x) sum(x != "---") > 0.9*length(x)),]
   domains.plotting <- as.data.frame(lapply(domain.p$codon, codon.position, seq.xy))
-  # print(domains.plotting)
   seq.xy <- codonmat2xy(seq.xy)
   seq.xy.m <- mutate(seq.xy, NonSynRatio = NonSynMean/SynMean) |> filter(is.finite(NonSynRatio)) |> select(Codon, NonSynRatio)
-  # return(seq.xy.m)
   ggplot(data = seq.xy.m) +
     geom_segment(mapping = aes(x = Codon, xend = Codon, y = 0, yend = NonSynRatio)) +
     geom_segment(mapping = aes(x = 1, xend = domains.plotting[, 2], y = max(NonSynRatio), yend = max(NonSynRatio), size = 2, color = "Extracellular")) +
@@ -45,8 +40,8 @@ syn.nonsyn.analysis <- function(seq, domain.p, recep.name){
     ylab("Nonsynonymous/Synonymous Substitution Ratio") +
     scale_x_continuous(expand = c(0,0)) + scale_y_continuous(expand = c(0,0)) +
     labs(color = "domain", title = recep.name) + 
-    guides(size = FALSE) +
-    easy_center_title()
+    guides(size = none) + theme_bw() +
+    easy_center_title() + easy_remove_gridlines()
 }
 
 lhcgr.domains <- data.frame(codon = c(25, 362, 627))
@@ -69,6 +64,6 @@ tshr.p.path <- "Primates_TSHR_orthologues.fa"
 lhcgr.p <- read.seqs(lhcgr.p.path)
 fshr.p <- read.seqs(fshr.p.path)
 tshr.p <- read.seqs(tshr.p.path)
-print(syn.nonsyn.analysis(lhcgr.p, lhcgr.domains, "Primates LHCGR"))
-print(syn.nonsyn.analysis(fshr.p, fshr.domains, "Primates FSHR"))
-print(syn.nonsyn.analysis(tshr.p, tshr.domains, "Primates TSHR"))
+print(syn.nonsyn.analysis(lhcgr.p, lhcgr.domains, "Primate LHCGR"))
+print(syn.nonsyn.analysis(fshr.p, fshr.domains, "Primate FSHR"))
+print(syn.nonsyn.analysis(tshr.p, tshr.domains, "Primate TSHR"))
