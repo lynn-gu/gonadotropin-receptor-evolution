@@ -1,10 +1,10 @@
 # dependencies
-library(sys)
 library(Biostrings)
 library(DECIPHER)
 library(MSA2dist)
 library(dplyr)
 library(ggplot2)
+library(ggeasy)
 
 # read DNA seqs
 read.seqs <- function(seq.path) {
@@ -26,17 +26,27 @@ codon.position <- function(start.c, mat){
 }
 
 # calculating nonsynonymous v synonymous ratio
-syn.nonsyn.analysis <- function(seq, domain.p){
+syn.nonsyn.analysis <- function(seq, domain.p, recep.name){
   # seq.xy <- seq |> dnastring2codonmat() |> codonmat2xy()
   seq.xy <- seq |> 
     # RemoveGaps(removeGaps = "all") |> AlignTranslation() |> 
     dnastring2codonmat(shorten=T) 
   seq.xy <- seq.xy[apply(seq.xy, MARGIN = 1, function(x) sum(x != "---") > 0.9*length(x)),]
   domains.plotting <- as.data.frame(lapply(domain.p$codon, codon.position, seq.xy))
-  print(domains.plotting)
-  seq.xy <- codonmat2xy()
+  # print(domains.plotting)
+  seq.xy <- codonmat2xy(seq.xy)
   seq.xy.m <- mutate(seq.xy, NonSynRatio = NonSynMean/SynMean) |> filter(is.finite(NonSynRatio)) |> select(Codon, NonSynRatio)
-  return(seq.xy.m)
+  # return(seq.xy.m)
+  ggplot(data = seq.xy.m) +
+    geom_segment(mapping = aes(x = Codon, xend = Codon, y = 0, yend = NonSynRatio)) +
+    geom_segment(mapping = aes(x = 1, xend = domains.plotting[, 2], y = max(NonSynRatio), yend = max(NonSynRatio), size = 2, color = "Extracellular")) +
+    geom_segment(mapping = aes(x = domains.plotting[, 2], xend = domains.plotting[, 3], y = max(NonSynRatio), yend = max(NonSynRatio), size = 2, color = "Serpentine")) +
+    geom_segment(mapping = aes(x = domains.plotting[, 3], xend = max(Codon), y = max(NonSynRatio), yend = max(NonSynRatio), size = 2, color = "Intracellular")) +
+    ylab("Nonsynonymous/Synonymous Substitution Ratio") +
+    scale_x_continuous(expand = c(0,0)) + scale_y_continuous(expand = c(0,0)) +
+    labs(color = "domain", title = recep.name) + 
+    guides(size = FALSE) +
+    easy_center_title()
 }
 
 lhcgr.domains <- data.frame(codon = c(25, 362, 627))
@@ -49,9 +59,9 @@ tshr.e.path <- "Eutherian_TSHR_orthologues.fa"
 lhcgr.e <- read.seqs(lhcgr.e.path)
 fshr.e <- read.seqs(fshr.e.path)
 tshr.e <- read.seqs(tshr.e.path)
-lhcgr.e.xy <- syn.nonsyn.analysis(lhcgr.e, lhcgr.domains)
-fshr.e.xy <- syn.nonsyn.analysis(fshr.e, fshr.domains)
-tshr.e.xy <- syn.nonsyn.analysis(tshr.e, tshr.domains)
+print(syn.nonsyn.analysis(lhcgr.e, lhcgr.domains, "Eutherian LHCGR"))
+print(syn.nonsyn.analysis(fshr.e, fshr.domains, "Eutherian FSHR"))
+print(syn.nonsyn.analysis(tshr.e, tshr.domains, "Eutherian TSHR"))
 
 lhcgr.p.path <- "Primates_LHCGR_orthologues.fa"
 fshr.p.path <- "Primates_FSHR_orthologues.fa"
@@ -59,22 +69,6 @@ tshr.p.path <- "Primates_TSHR_orthologues.fa"
 lhcgr.p <- read.seqs(lhcgr.p.path)
 fshr.p <- read.seqs(fshr.p.path)
 tshr.p <- read.seqs(tshr.p.path)
-lhcgr.p.xy <- syn.nonsyn.analysis(lhcgr.p)
-fshr.p.xy <- syn.nonsyn.analysis(fshr.p)
-tshr.p.xy <- syn.nonsyn.analysis(tshr.p)
-
-# plotting eutherian data
-ggplot() +
-  geom_segment(data = lhcgr.e.xy, mapping = aes(x = Codon, xend = Codon, y = 0, yend = NonSynRatio, color = "LHCGR")) +
-  geom_segment(data = fshr.e.xy, mapping = aes(x = Codon, xend = Codon, y = 0, yend = NonSynRatio, color = "FSHR")) +
-  geom_segment(data = tshr.e.xy, mapping = aes(x = Codon, xend = Codon, y = 0, yend = NonSynRatio, color = "TSHR")) +
-  ylab("Nonsynonymous/Synonymous Substitution Ratio") +
-  labs(color = "receptors")
-
-# plotting primates data
-ggplot() +
-  geom_segment(data = lhcgr.p.xy, mapping = aes(x = Codon, xend = Codon, y = 0, yend = NonSynRatio, color = "LHCGR")) +
-  geom_segment(data = fshr.p.xy, mapping = aes(x = Codon, xend = Codon, y = 0, yend = NonSynRatio, color = "FSHR")) +
-  geom_segment(data = tshr.p.xy, mapping = aes(x = Codon, xend = Codon, y = 0, yend = NonSynRatio, color = "TSHR")) +
-  ylab("Nonsynonymous/Synonymous Substitution Ratio") +
-  labs(color = "receptors")
+print(syn.nonsyn.analysis(lhcgr.p, lhcgr.domains, "Primates LHCGR"))
+print(syn.nonsyn.analysis(fshr.p, fshr.domains, "Primates FSHR"))
+print(syn.nonsyn.analysis(tshr.p, tshr.domains, "Primates TSHR"))
